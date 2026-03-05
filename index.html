@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+
+<link href="https://fonts.googleapis.com/css2?family=Darumadrop+One&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+
+<style>
+
+body{
+margin:0;
+background:transparent;
+font-family:'Darumadrop One';
+color:white;
+}
+
+.container{
+width:420px;
+padding:20px;
+background:rgba(20,20,30,0.9);
+border-radius:16px;
+text-align:center;
+}
+
+.overlay{
+transition:opacity 0.8s;
+}
+
+.hidden{
+opacity:0;
+pointer-events:none;
+}
+
+.score{
+display:flex;
+justify-content:space-around;
+font-size:64px;
+margin-top:10px;
+opacity:0;
+transition:opacity 0.8s;
+}
+
+.show{
+opacity:1;
+}
+
+.win{color:#1ec773;}
+.lose{color:#e34a4a;}
+
+.rate{
+margin-top:10px;
+font-size:22px;
+opacity:0;
+transition:opacity 0.8s;
+}
+
+.roomHistory{
+font-size:14px;
+margin-top:6px;
+opacity:.7;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div id="overlay" class="overlay">
+
+<div id="status">接続待ち…</div>
+<div id="room"></div>
+<div id="history" class="roomHistory"></div>
+
+</div>
+
+<div id="score" class="score">
+
+<div class="win">
+<div>勝ち</div>
+<div id="win">0</div>
+</div>
+
+<div class="lose">
+<div>負け</div>
+<div id="lose">0</div>
+</div>
+
+</div>
+
+<div id="rate" class="rate">
+勝率 <span id="rateNum">0%</span>
+</div>
+
+</div>
+
+<script>
+
+function randomRoom(){
+return Math.random().toString(36).substr(2,6)
+}
+
+let room=randomRoom()
+
+// 前回ルームID表示
+const lastRoom=localStorage.getItem("lastRoom")
+
+if(lastRoom){
+document.getElementById("history").textContent="前回: "+lastRoom
+}
+
+localStorage.setItem("lastRoom",room)
+
+document.getElementById("room").textContent="ルームID: "+room
+
+//ルームIDをコピーできるようにする
+document.getElementById("room").addEventListener("click",()=>{
+navigator.clipboard.writeText(room)
+alert("ルームIDをコピーしました: "+room)
+})
+
+
+let win=0
+let lose=0
+
+function update(){
+
+document.getElementById("win").textContent=win
+document.getElementById("lose").textContent=lose
+
+let total=win+lose
+let rate=0
+
+if(total>0){
+rate=Math.round(win/total*100)
+}
+
+document.getElementById("rateNum").textContent=rate+"%"
+
+}
+
+function showCounter(){
+
+const overlay=document.getElementById("overlay")
+
+overlay.style.opacity="0"
+
+setTimeout(()=>{
+
+overlay.style.display="none"
+
+document.getElementById("score").classList.add("show")
+document.getElementById("rate").classList.add("show")
+
+},800)
+
+}
+
+const peer=new Peer(room)
+
+peer.on("open",()=>{
+
+document.getElementById("status").textContent="接続待機中"
+
+})
+
+peer.on("connection",conn=>{
+
+document.getElementById("status").textContent="接続完了"
+
+setTimeout(showCounter,1000)
+
+conn.on("data",data=>{
+
+win=data.win
+lose=data.lose
+update()
+
+})
+
+})
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+
+<link href="https://fonts.googleapis.com/css2?family=Darumadrop+One&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+
+<style>
+
+body{
+font-family:'Darumadrop One';
+background:#111;
+color:white;
+text-align:center;
+padding-top:80px;
+}
+
+input{
+font-size:20px;
+padding:10px;
+border-radius:8px;
+border:none;
+text-align:center;
+}
+
+button{
+font-size:22px;
+padding:10px 20px;
+margin:8px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+}
+
+.win{background:#1ec773;color:black;}
+.lose{background:#e34a4a;}
+.reset{background:#555;color:white;}
+.connect{background:#2c7be5;color:white;}
+.pop{background:#ffaa00;color:black;}
+
+.controls{
+display:none;
+margin-top:20px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>勝敗操作</h1>
+
+<input id="roomInput" placeholder="ルームID">
+<br>
+
+<button class="connect" onclick="connectRoom()">接続</button>
+<button class="pop" onclick="popup()">ポップアウト</button>
+
+<div id="controls" class="controls">
+
+<button class="win" onclick="addWin()">勝ち +1</button>
+<button class="lose" onclick="addLose()">負け +1</button>
+<button class="reset" onclick="reset()">リセット</button>
+
+</div>
+
+<script>
+
+let win=0
+let lose=0
+
+let conn
+const peer=new Peer()
+
+function connectRoom(){
+
+const room=document.getElementById("roomInput").value
+
+conn=peer.connect(room)
+
+conn.on("open",()=>{
+
+document.getElementById("controls").style.display="block"
+
+})
+
+}
+
+function send(){
+
+if(conn){
+conn.send({win,lose})
+}
+
+}
+
+function addWin(){
+win++
+send()
+}
+
+function addLose(){
+lose++
+send()
+}
+
+function reset(){
+win=0
+lose=0
+send()
+}
+
+function popup(){
+
+window.open(
+window.location.href,
+"controlPanel",
+"width=320,height=260"
+)
+
+}
+
+</script>
+
+</body>
+</html>
