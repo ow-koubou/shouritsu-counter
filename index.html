@@ -80,12 +80,12 @@ opacity:.7;
 <div id="score" class="score">
 
 <div class="win">
-<div>かち</div>
+<div id="winLabel">勝ち</div>
 <div id="win">0</div>
 </div>
 
 <div class="lose">
-<div>まけ</div>
+<div id="loseLabel">負け</div>
 <div id="lose">0</div>
 </div>
 
@@ -125,6 +125,23 @@ alert("ルームIDをコピーしました: "+room)
 
 let win=0
 let lose=0
+let fontKey='darumadrop'
+const fontFamilies={
+darumadrop:'Darumadrop One, sans-serif',
+mincho:'Hiragino Mincho ProN, "ＭＳ 明朝", serif'
+}
+
+function updateLabels(){
+if(fontKey==='mincho'){
+ document.getElementById('winLabel').textContent='勝'
+ document.getElementById('loseLabel').textContent='敗'
+} else {
+ document.getElementById('winLabel').textContent='かち'
+ document.getElementById('loseLabel').textContent='まけ'
+}
+}
+
+updateLabels()
 
 function update(){
 
@@ -177,6 +194,14 @@ conn.on("data",data=>{
 
 win=data.win
 lose=data.lose
+if(data.font){
+const selectedFont=data.font
+document.body.style.fontFamily=selectedFont
+}
+if(data.fontKey){
+ fontKey=data.fontKey
+}
+updateLabels()
 update()
 
 })
