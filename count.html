@@ -2,54 +2,372 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://fonts.googleapis.com/css2?family=Darumadrop+One&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 
 <style>
 
-body{
-font-family:'Darumadrop One';
-background:#111;
-color:white;
-text-align:center;
-padding-top:80px;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-input{
-font-size:20px;
-padding:10px;
-border-radius:8px;
-border:none;
-text-align:center;
+body {
+  font-family: 'Darumadrop One', 'Hiragino Mincho ProN', sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-button{
-font-size:22px;
-padding:10px 20px;
-margin:8px;
-border:none;
-border-radius:10px;
-cursor:pointer;
+.main-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  max-width: 1000px;
+  width: 100%;
 }
 
-.font-select{
-font-size:18px;
-padding:8px 12px;
-margin-top:8px;
-border-radius:8px;
-border:none;
+.panel {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
-.win{background:#1ec773;color:black;}
-.lose{background:#e34a4a;}
-.reset{background:#555;color:white;}
-.connect{background:#2c7be5;color:white;}
-.pop{background:#ffaa00;color:black;}
+.panel h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  text-align: center;
+}
 
-.controls{
-display:none;
-margin-top:20px;
+.connection-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.room-display {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 15px;
+  border-radius: 12px;
+  font-size: 18px;
+  word-break: break-all;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.room-display:hover {
+  background: rgba(0, 0, 0, 0.5);
+  transform: scale(1.02);
+}
+
+.status {
+  font-size: 14px;
+  text-align: center;
+  min-height: 20px;
+  color: #aaa;
+}
+
+.status.connected {
+  color: #1ec773;
+  font-weight: bold;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+button {
+  padding: 15px 20px;
+  font-size: 18px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s;
+  font-family: 'Darumadrop One', sans-serif;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+.win-btn {
+  background: linear-gradient(135deg, #1ec773 0%, #17a956 100%);
+  color: white;
+  grid-column: 1;
+}
+
+.lose-btn {
+  background: linear-gradient(135deg, #e34a4a 0%, #c62828 100%);
+  color: white;
+  grid-column: 2;
+}
+
+.undo-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  font-size: 14px;
+  padding: 8px 12px;
+  grid-column: 1;
+}
+
+.reset-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  font-size: 14px;
+  padding: 8px 12px;
+  grid-column: 2;
+}
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+select {
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  font-size: 16px;
+  background: rgba(0, 0, 0, 0.3);
+  color: white;
+  cursor: pointer;
+}
+
+select option {
+  background: #333;
+  color: white;
+}
+
+.color-picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.color-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.color-btn:hover {
+  transform: scale(1.1);
+}
+
+.color-btn.active {
+  border-color: white;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+}
+
+.statistics-panel {
+  grid-column: 1 / -1;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.stat-box {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #aaa;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.history-list {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  padding: 15px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 14px;
+}
+
+.history-item:last-child {
+  border-bottom: none;
+}
+
+.history-badge {
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.badge-win {
+  background: #1ec773;
+  color: black;
+}
+
+.badge-lose {
+  background: #e34a4a;
+  color: white;
+}
+
+.popup-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  grid-column: 1 / -1;
+  margin-top: 10px;
+}
+
+.update-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.update-dialog.show {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.update-dialog-content {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.update-dialog-header {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.update-dialog-content h3 {
+  font-size: 16px;
+  margin-top: 15px;
+  margin-bottom: 8px;
+  color: #fff;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  padding-bottom: 8px;
+}
+
+.update-dialog-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0 0;
+}
+
+.update-dialog-content li {
+  font-size: 14px;
+  padding: 6px 0;
+  padding-left: 20px;
+  position: relative;
+  color: #f0f0f0;
+}
+
+.update-dialog-content li:before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #1ec773;
+  font-weight: bold;
+}
+
+.update-dialog-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 30px;
+  justify-content: center;
+}
+
+.update-dialog-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-family: 'Darumadrop One', sans-serif;
+}
+
+.update-dialog-btn.primary {
+  background: linear-gradient(135deg, #1ec773 0%, #17a956 100%);
+  color: white;
+}
+
+.update-dialog-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(30, 199, 115, 0.4);
+}
+
+@media (max-width: 768px) {
+  .main-container {
+    grid-template-columns: 1fr;
+  }
+
+  .statistics-panel {
+    grid-column: 1;
+  }
+
+  .update-dialog-content {
+    padding: 30px 20px;
+  }
+
+  .update-dialog-header {
+    font-size: 24px;
+  }
 }
 
 </style>
@@ -58,115 +376,439 @@ margin-top:20px;
 
 <body>
 
-<h1>勝敗操作</h1>
+<div class="update-dialog" id="updateDialog">
+  <div class="update-dialog-content">
+    <div class="update-dialog-header">🎉 v2にアップデート！</div>
+    
+    <h3>🎨 デザイン大幅リニューアル</h3>
+    <ul>
+      <li>モダンなグラスモーフィズムUIに刷新</li>
+      <li>直感的な3カラムレイアウト</li>
+    </ul>
 
-<input id="roomInput" placeholder="ルームID">
-<br>
+    <h3>🌈 新機能</h3>
+    <ul>
+      <li>カウンター背景色を6色から選択可能</li>
+      <li>ルームIDが自動保存され、いつでも再接続可能</li>
+      <li>セッション単位の勝敗履歴を記録</li>
+      <li>総勝敗数と勝率を自動集計</li>
+    </ul>
 
-<button class="connect" onclick="connectRoom()">接続</button>
-<button class="pop" onclick="popup()">ポップアウト</button>
+    <h3>💾 データ管理</h3>
+    <ul>
+      <li>リセット時に自動でセッション履歴に保存</li>
+      <li>最大50セッションまで履歴保持</li>
+    </ul>
 
-<div id="controls" class="controls">
+    <div class="update-dialog-buttons">
+      <button class="update-dialog-btn primary" onclick="closeUpdateDialog()">了解</button>
+    </div>
+  </div>
+</div>
 
-<button class="win" onclick="addWin()">勝ち +1</button>
-<button class="lose" onclick="addLose()">負け +1</button>
-<button class="reset" onclick="subtractWin()">勝ち -1</button>
-<button class="reset" onclick="subtractLose()">負け -1</button>
-<button class="reset" onclick="reset()">リセット</button>
+<div class="main-container">
 
-<select id="fontSelect" class="font-select" onchange="setFont(this.value)">
-<option value="darumadrop">現在のフォント</option>
-<option value="mincho">明朝体</option>
-</select>
+  <!-- 接続・操作パネル -->
+  <div class="panel connection-panel">
+    <h2>🎮 操作パネル</h2>
+    
+    <div class="status" id="status">接続待機中...</div>
+    <div class="room-display" id="roomDisplay" onclick="copyRoom()" title="クリックでコピー">-</div>
+    
+    <div class="controls">
+      <button class="win-btn" onclick="addWin()">勝ち +1</button>
+      <button class="lose-btn" onclick="addLose()">負け +1</button>
+      <button class="undo-btn" onclick="subtractWin()">勝ち -1</button>
+      <button class="undo-btn" onclick="subtractLose()">負け -1</button>
+      <button class="reset-btn" onclick="reset()">リセット</button>
+      <button class="popup-btn" onclick="popup()">ポップアウト</button>
+    </div>
+
+    <div style="margin-top: 20px; padding: 15px; background: rgba(0, 0, 0, 0.3); border-radius: 12px; text-align: center;">
+      <div style="font-size: 24px; font-weight: bold;">
+        <span style="color: #1ec773;">勝 <span id="currentWin">0</span></span>
+        <span style="margin: 0 10px;">-</span>
+        <span style="color: #e34a4a;">敗 <span id="currentLose">0</span></span>
+      </div>
+      <div style="margin-top: 8px; font-size: 14px; color: #aaa;">
+        勝率 <span id="currentRate">0</span>%
+      </div>
+    </div>
+  </div>
+
+  <!-- 設定パネル -->
+  <div class="panel settings">
+    <h2>⚙️ 設定</h2>
+    
+    <div>
+      <label style="font-size: 14px; display: block; margin-bottom: 8px;">フォント選択</label>
+      <select id="fontSelect" onchange="setFont(this.value)">
+        <option value="darumadrop">ダルマドロップ体</option>
+        <option value="mincho">明朝体</option>
+      </select>
+    </div>
+
+    <div>
+      <label style="font-size: 14px; display: block; margin-bottom: 8px;">勝ち文字色</label>
+      <input type="color" id="winColorPicker" style="width: 100%; height: 50px; border: none; border-radius: 12px; cursor: pointer;" onchange="setWinColor(this.value)">
+    </div>
+
+    <div>
+      <label style="font-size: 14px; display: block; margin-bottom: 8px;">負け文字色</label>
+      <input type="color" id="loseColorPicker" style="width: 100%; height: 50px; border: none; border-radius: 12px; cursor: pointer;" onchange="setLoseColor(this.value)">
+    </div>
+
+    <div>
+      <label style="font-size: 14px; display: block; margin-bottom: 8px;">カウンター背景色選択</label>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <input type="color" id="containerColorPicker" style="width: 80px; height: 50px; border: none; border-radius: 12px; cursor: pointer;" onchange="setContainerBackgroundFromPicker(this.value)">
+        <div style="flex: 1; background: rgba(0, 0, 0, 0.3); padding: 10px; border-radius: 12px; font-size: 14px; text-align: center;">
+          <span id="colorDisplay">#1a141e</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 統計・履歴パネル -->
+  <div class="panel statistics-panel">
+    <h2>📊 統計・履歴</h2>
+    
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="stat-label">総勝数</div>
+        <div class="stat-value" id="totalWin">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">総敗数</div>
+        <div class="stat-value" id="totalLose">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">勝率</div>
+        <div class="stat-value" id="totalRate">0%</div>
+      </div>
+    </div>
+
+    <div>
+      <label style="font-size: 14px; display: block; margin-bottom: 8px;">直近の履歴</label>
+      <div class="history-list" id="historyList">
+        <div style="text-align: center; color: #888;">履歴はまだありません</div>
+      </div>
+    </div>
+  </div>
 
 </div>
 
 <script>
 
-let win=0
-let lose=0
-let font='Darumadrop One, sans-serif'
-let fontKey='darumadrop'
-const fontFamilies={
-darumadrop:'Darumadrop One, sans-serif',
-mincho:'Hiragino Mincho ProN, "ＭＳ 明朝", serif'
+let win = 0
+let lose = 0
+let font = 'Darumadrop One, sans-serif'
+let fontKey = 'darumadrop'
+let winColor = '#1ec773'
+let loseColor = '#e34a4a'
+let containerBackgroundColor = 'rgba(26,20,30,0.9)'
+let containerBackgroundColorKey = '#1a141e'
+let roomId = null
+let conn = null
+let peer = null
+
+const fontFamilies = {
+  darumadrop: 'Darumadrop One, sans-serif',
+  mincho: 'Hiragino Mincho ProN, "ＭＳ 明朝", serif'
 }
 
-let conn
-const peer=new Peer()
+// ルームID管理
+function initializeRoom() {
+  let saved = localStorage.getItem('savedRoomId')
+  
+  if (!saved) {
+    saved = Math.random().toString(36).substr(2, 6)
+    localStorage.setItem('savedRoomId', saved)
+  }
+  
+  roomId = saved
+  document.getElementById('roomDisplay').textContent = 'ルームID: ' + roomId
+  
+  if (peer) {
+    peer.destroy()
+  }
+  
+  peer = new Peer(roomId)
+  
+  peer.on('open', () => {
+    updateStatus('接続準備完了', true)
+  })
+  
+  peer.on('connection', connObject => {
+    conn = connObject
+    updateStatus('接続完了', true)
+    send()
+    
+    conn.on('data', data => {
+      // 受信したデータは無視（表示用）
+    })
+  })
+  
+  peer.on('error', err => {
+    console.error('Peer error:', err)
+    updateStatus('エラー: ' + err.type, false)
+  })
+}
 
-function connectRoom(){
+function updateStatus(text, connected = false) {
+  const status = document.getElementById('status')
+  status.textContent = text
+  status.classList.toggle('connected', connected)
+}
 
-const room=document.getElementById("roomInput").value
+function copyRoom() {
+  navigator.clipboard.writeText(roomId)
+  alert('ルームIDをコピーしました: ' + roomId)
+}
 
-conn=peer.connect(room)
+function send() {
+  if (conn) {
+    conn.send({ win, lose, font, fontKey, containerBackgroundColor, containerBackgroundColorKey, winColor, loseColor })
+  } else {
+    console.warn('接続がまだ確立されていません')
+  }
+}
 
-conn.on("open",()=>{
+function addWin() {
+  win++
+  updateCurrentDisplay()
+  send()
+  updateStatistics()
+}
 
-document.getElementById("controls").style.display="block"
-send()
+function addLose() {
+  lose++
+  updateCurrentDisplay()
+  send()
+  updateStatistics()
+}
 
+function subtractWin() {
+  if (win > 0) {
+    win--
+    updateCurrentDisplay()
+    send()
+    updateStatistics()
+  }
+}
+
+function subtractLose() {
+  if (lose > 0) {
+    lose--
+    updateCurrentDisplay()
+    send()
+    updateStatistics()
+  }
+}
+
+function updateCurrentDisplay() {
+  document.getElementById('currentWin').textContent = win
+  document.getElementById('currentLose').textContent = lose
+  const rate = win + lose > 0 ? Math.round(win / (win + lose) * 100) : 0
+  document.getElementById('currentRate').textContent = rate
+}
+
+function reset() {
+  saveSession() // 現在のセッションを履歴に保存
+  win = 0
+  lose = 0
+  updateCurrentDisplay()
+  send()
+  updateStatistics()
+}
+
+function setFont(key) {
+  const selectedFont = fontFamilies[key] || fontFamilies.darumadrop
+  fontKey = key
+  font = selectedFont
+  document.body.style.fontFamily = font
+  localStorage.setItem('selectedFont', key)
+  send()
+}
+
+function setWinColor(color) {
+  winColor = color
+  localStorage.setItem('winColor', color)
+  document.querySelector('#currentWin').style.color = color
+  send()
+}
+
+function setLoseColor(color) {
+  loseColor = color
+  localStorage.setItem('loseColor', color)
+  document.querySelector('#currentLose').style.color = color
+  send()
+}
+
+function setContainerBackgroundFromPicker(hexColor) {
+  // HEXカラーをRGB値に変換
+  const r = parseInt(hexColor.slice(1, 3), 16)
+  const g = parseInt(hexColor.slice(3, 5), 16)
+  const b = parseInt(hexColor.slice(5, 7), 16)
+  
+  containerBackgroundColor = `rgba(${r},${g},${b},0.9)`
+  containerBackgroundColorKey = hexColor
+  
+  // 色表示を更新
+  document.getElementById('colorDisplay').textContent = hexColor.toUpperCase()
+  
+  localStorage.setItem('containerBackgroundColor', containerBackgroundColor)
+  localStorage.setItem('containerBackgroundColorKey', hexColor)
+  
+  send()
+}
+
+// 履歴管理
+function getHistory() {
+  const saved = localStorage.getItem('sessionHistory')
+  return saved ? JSON.parse(saved) : []
+}
+
+function saveSession() {
+  if (win === 0 && lose === 0) return // スコアが0の場合は保存しない
+  
+  const history = getHistory()
+  const timestamp = new Date().toLocaleString('ja-JP')
+  history.push({ 
+    timestamp, 
+    win, 
+    lose,
+    rate: win + lose > 0 ? Math.round(win / (win + lose) * 100) : 0
+  })
+  
+  // 最新50セッションまで保持
+  if (history.length > 50) {
+    history.shift()
+  }
+  
+  localStorage.setItem('sessionHistory', JSON.stringify(history))
+  updateHistoryDisplay()
+}
+
+function updateHistoryDisplay() {
+  const history = getHistory()
+  const historyList = document.getElementById('historyList')
+  
+  if (history.length === 0) {
+    historyList.innerHTML = '<div style="text-align: center; color: #888;">履歴はまだありません</div>'
+    return
+  }
+  
+  // 新しい順に表示
+  historyList.innerHTML = history.reverse().slice(0, 20).map(item => {
+    return `
+      <div class="history-item">
+        <span style="font-size: 12px; color: #aaa;">${item.timestamp}</span>
+        <span>かち ${item.win} - まけ ${item.lose}</span>
+        <span style="font-size: 12px; color: #1ec773;">${item.rate}%</span>
+      </div>
+    `
+  }).join('')
+}
+
+function updateStatistics() {
+  const history = getHistory()
+  
+  let totalWin = 0
+  let totalLose = 0
+  
+  history.forEach(item => {
+    totalWin += item.win
+    totalLose += item.lose
+  })
+  
+  const total = totalWin + totalLose
+  const rate = total > 0 ? Math.round(totalWin / total * 100) : 0
+  
+  document.getElementById('totalWin').textContent = totalWin
+  document.getElementById('totalLose').textContent = totalLose
+  document.getElementById('totalRate').textContent = rate + '%'
+}
+
+// 初期化
+const savedFont = localStorage.getItem('selectedFont')
+const savedWinColor = localStorage.getItem('winColor')
+const savedLoseColor = localStorage.getItem('loseColor')
+const savedBgColor = localStorage.getItem('containerBackgroundColor')
+const savedBgColorKey = localStorage.getItem('containerBackgroundColorKey')
+
+if (savedFont) {
+  document.getElementById('fontSelect').value = savedFont
+  setFont(savedFont)
+} else {
+  setFont('darumadrop')
+}
+
+if (savedWinColor) {
+  winColor = savedWinColor
+  document.getElementById('winColorPicker').value = winColor
+  document.querySelector('#currentWin').style.color = winColor
+}
+
+if (savedLoseColor) {
+  loseColor = savedLoseColor
+  document.getElementById('loseColorPicker').value = loseColor
+  document.querySelector('#currentLose').style.color = loseColor
+}
+
+if (savedBgColor) {
+  containerBackgroundColor = savedBgColor
+  containerBackgroundColorKey = savedBgColorKey
+  
+  // カラーピッカーに値をセット
+  if (savedBgColorKey && savedBgColorKey.startsWith('#')) {
+    document.getElementById('containerColorPicker').value = savedBgColorKey
+    document.getElementById('colorDisplay').textContent = savedBgColorKey.toUpperCase()
+  } else {
+    // 古い形式（RGB）の場合はデフォルトに戻す
+    const defaultHex = '#1a141e'
+    document.getElementById('containerColorPicker').value = defaultHex
+    document.getElementById('colorDisplay').textContent = defaultHex.toUpperCase()
+    containerBackgroundColor = 'rgba(26,20,30,0.9)'
+  }
+} else {
+  // 初回設定
+  const defaultHex = '#1a141e'
+  document.getElementById('containerColorPicker').value = defaultHex
+  document.getElementById('colorDisplay').textContent = defaultHex.toUpperCase()
+  containerBackgroundColor = 'rgba(26,20,30,0.9)'
+}
+
+// アップデートダイアログ表示制御
+function showUpdateDialogIfNeeded() {
+  const updateShown = localStorage.getItem('updateDialogShownV2')
+  if (!updateShown) {
+    document.getElementById('updateDialog').classList.add('show')
+  }
+}
+
+function closeUpdateDialog() {
+  document.getElementById('updateDialog').classList.remove('show')
+  localStorage.setItem('updateDialogShownV2', 'true')
+}
+
+initializeRoom()
+updateCurrentDisplay()
+updateStatistics()
+updateHistoryDisplay()
+showUpdateDialogIfNeeded()
+
+// ページを離れるときに現在のセッションを保存
+window.addEventListener('beforeunload', () => {
+  saveSession()
 })
 
-}
-
-function send(){
-
-if(conn){
-conn.send({win,lose,font,fontKey})
-}
-
-}
-
-function addWin(){
-win++
-send()
-}
-
-function addLose(){
-lose++
-send()
-}
-
-function subtractWin(){
-if(win>0) win--
-send()
-}
-
-function subtractLose(){
-if(lose>0) lose--
-send()
-}
-
-function reset(){
-win=0
-lose=0
-send()
-}
-
-function setFont(key){
-const selectedFont=fontFamilies[key] || fontFamilies.darumadrop
-fontKey=key
-font=selectedFont
-document.body.style.fontFamily=font
-localStorage.setItem('selectedFont', key)
-send()
-}
-
-const savedFont=localStorage.getItem('selectedFont')
-if(savedFont){
-document.getElementById('fontSelect').value=savedFont
-}
-setFont(document.getElementById('fontSelect').value)
-
-function popup(){
-
-window.open(
-window.location.href,
-"controlPanel",
-"width=320,height=260"
-)
-
+function popup() {
+  window.open(
+    window.location.href.replace('count.html', 'index.html'),
+    'displayPanel',
+    'width=500,height=400'
+  )
 }
 
 </script>
