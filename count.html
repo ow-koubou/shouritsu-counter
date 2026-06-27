@@ -70,6 +70,43 @@ body {
   transform: scale(1.02);
 }
 
+.room-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.room-editor-row {
+  display: flex;
+  gap: 8px;
+}
+
+.room-input {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  font-size: 14px;
+  font-family: 'Darumadrop One', sans-serif;
+}
+
+.room-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.room-apply-btn {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #1ec773 0%, #17a956 100%);
+  color: white;
+  cursor: pointer;
+  font-family: 'Darumadrop One', sans-serif;
+  font-size: 14px;
+}
+
 .status {
   font-size: 14px;
   text-align: center;
@@ -400,6 +437,11 @@ select option {
       <li>最大50セッションまで履歴保持</li>
     </ul>
 
+    <h3>⚠️ 注意事項</h3>
+    <ul>
+      <li>先に操作ページを起動してください</li>
+    </ul>
+
     <div class="update-dialog-buttons">
       <button class="update-dialog-btn primary" onclick="closeUpdateDialog()">了解</button>
     </div>
@@ -413,7 +455,13 @@ select option {
     <h2>🎮 操作パネル</h2>
     
     <div class="status" id="status">接続待機中...</div>
-    <div class="room-display" id="roomDisplay" onclick="copyRoom()" title="クリックでコピー">-</div>
+    <div class="room-editor">
+      <div class="room-display" id="roomDisplay" onclick="copyRoom()" title="クリックでコピー">-</div>
+      <div class="room-editor-row">
+        <input type="text" id="roomInput" class="room-input" placeholder="新しいルームIDを入力" />
+        <button class="room-apply-btn" onclick="changeRoom()">変更</button>
+      </div>
+    </div>
     
     <div class="controls">
       <button class="win-btn" onclick="addWin()">勝ち +1</button>
@@ -528,6 +576,12 @@ function initializeRoom() {
   
   roomId = saved
   document.getElementById('roomDisplay').textContent = 'ルームID: ' + roomId
+  document.getElementById('roomInput').value = roomId
+  
+  if (conn) {
+    conn.close()
+    conn = null
+  }
   
   if (peer) {
     peer.destroy()
@@ -553,6 +607,20 @@ function initializeRoom() {
     console.error('Peer error:', err)
     updateStatus('エラー: ' + err.type, false)
   })
+}
+
+function changeRoom() {
+  const nextRoomId = document.getElementById('roomInput').value.trim()
+  
+  if (!nextRoomId) {
+    alert('ルームIDを入力してください')
+    return
+  }
+  
+  roomId = nextRoomId
+  localStorage.setItem('savedRoomId', roomId)
+  initializeRoom()
+  alert('ルームIDを変更しました: ' + roomId)
 }
 
 function updateStatus(text, connected = false) {
@@ -791,6 +859,12 @@ function closeUpdateDialog() {
   document.getElementById('updateDialog').classList.remove('show')
   localStorage.setItem('updateDialogShownV2', 'true')
 }
+
+document.getElementById('roomInput').addEventListener('keydown', event => {
+  if (event.key === 'Enter') {
+    changeRoom()
+  }
+})
 
 initializeRoom()
 updateCurrentDisplay()
