@@ -21,6 +21,7 @@ padding:20px;
 background:rgba(20,20,30,0.9);
 border-radius:16px;
 text-align:center;
+transition: background 0.5s;
 }
 
 .overlay{
@@ -103,41 +104,48 @@ function randomRoom(){
 return Math.random().toString(36).substr(2,6)
 }
 
-let room=randomRoom()
-
-// 前回ルームID表示
-const lastRoom=localStorage.getItem("lastRoom")
-
-if(lastRoom){
-document.getElementById("history").textContent="前回: "+lastRoom
+// ルームID自動管理
+let room = localStorage.getItem('savedRoomId')
+if (!room) {
+  room = randomRoom()
+  localStorage.setItem('savedRoomId', room)
+} else {
+  document.getElementById('status').textContent = '前回のルームで再接続中…'
 }
 
-localStorage.setItem("lastRoom",room)
+// 前回ルームID表示
+const lastRoom = localStorage.getItem('previousRoomId')
+if(lastRoom && lastRoom !== room) {
+  document.getElementById('history').textContent = '前回: ' + lastRoom
+}
 
-document.getElementById("room").textContent="ルームID: "+room
+localStorage.setItem('previousRoomId', room)
 
-//ルームIDをコピーできるようにする
-document.getElementById("room").addEventListener("click",()=>{
-navigator.clipboard.writeText(room)
-alert("ルームIDをコピーしました: "+room)
+document.getElementById('room').textContent = 'ルームID: ' + room
+
+// ルームIDをコピーできるようにする
+document.getElementById('room').addEventListener('click', () => {
+  navigator.clipboard.writeText(room)
+  alert('ルームIDをコピーしました: ' + room)
 })
 
+let win = 0
+let lose = 0
+let fontKey = 'darumadrop'
+let backgroundColor = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
 
-let win=0
-let lose=0
-let fontKey='darumadrop'
-const fontFamilies={
-darumadrop:'Darumadrop One, sans-serif',
-mincho:'Hiragino Mincho ProN, "ＭＳ 明朝", serif'
+const fontFamilies = {
+  darumadrop: 'Darumadrop One, sans-serif',
+  mincho: 'Hiragino Mincho ProN, "ＭＳ 明朝", serif'
 }
 
 function updateLabels(){
-if(fontKey==='mincho'){
- document.getElementById('winLabel').textContent='勝'
- document.getElementById('loseLabel').textContent='敗'
+if(fontKey === 'mincho'){
+ document.getElementById('winLabel').textContent = '勝'
+ document.getElementById('loseLabel').textContent = '敗'
 } else {
- document.getElementById('winLabel').textContent='かち'
- document.getElementById('loseLabel').textContent='まけ'
+ document.getElementById('winLabel').textContent = 'かち'
+ document.getElementById('loseLabel').textContent = 'まけ'
 }
 }
 
@@ -145,67 +153,84 @@ updateLabels()
 
 function update(){
 
-document.getElementById("win").textContent=win
-document.getElementById("lose").textContent=lose
+document.getElementById('win').textContent = win
+document.getElementById('lose').textContent = lose
 
-let total=win+lose
-let rate=0
+let total = win + lose
+let rate = 0
 
-if(total>0){
-rate=Math.round(win/total*100)
+if(total > 0){
+rate = Math.round(win/total*100)
 }
 
-document.getElementById("rateNum").textContent=rate+"%"
+document.getElementById('rateNum').textContent = rate + '%'
 
 }
 
 function showCounter(){
 
-const overlay=document.getElementById("overlay")
+const overlay = document.getElementById('overlay')
 
-overlay.style.opacity="0"
+overlay.style.opacity = '0'
 
 setTimeout(()=>{
 
-overlay.style.display="none"
+overlay.style.display = 'none'
 
-document.getElementById("score").classList.add("show")
-document.getElementById("rate").classList.add("show")
+document.getElementById('score').classList.add('show')
+document.getElementById('rate').classList.add('show')
 
-},800)
+}, 800)
 
 }
 
-const peer=new Peer(room)
+const peer = new Peer()
+let peerConn = null
 
-peer.on("open",()=>{
-
-document.getElementById("status").textContent="接続待機中"
-
+peer.on('open', () => {
+  document.getElementById('status').textContent = '接続待機中'
+  
+  // 自動接続
+  peerConn = peer.connect(room)
+  
+  peerConn.on('open', () => {
+    document.getElementById('status').textContent = '接続完了'
+    setTimeout(showCounter, 1000)
+  })
+  
+  peerConn.on('data', data => {
+    win = data.win
+    lose = data.lose
+    if(data.font) {
+      const selectedFont = data.font
+      document.body.style.fontFamily = selectedFont
+    }
+    if(data.fontKey) {
+      fontKey = data.fontKey
+    }
+    if(data.containerBackgroundColor) {
+      backgroundColor = data.containerBackgroundColor
+      document.querySelector('.container').style.background = backgroundColor
+    }
+    if(data.winColor) {
+      document.querySelector('.win').style.color = data.winColor
+    }
+    if(data.loseColor) {
+      document.querySelector('.lose').style.color = data.loseColor
+    }
+    updateLabels()
+    update()
+  })
+  
+  peerConn.on('error', err => {
+    console.error('Connection error:', err)
+    document.getElementById('status').textContent = 'エラー: ' + err.type
+  })
 })
 
-peer.on("connection",conn=>{
-
-document.getElementById("status").textContent="接続完了"
-
-setTimeout(showCounter,1000)
-
-conn.on("data",data=>{
-
-win=data.win
-lose=data.lose
-if(data.font){
-const selectedFont=data.font
-document.body.style.fontFamily=selectedFont
-}
-if(data.fontKey){
- fontKey=data.fontKey
-}
-updateLabels()
-update()
-
-})
-
+peer.on('error', err => {
+  console.error('Peer error:', err)
+  document.getElementById('status').textContent = 'エラー: ' + err.type
 })
 
 </script>
