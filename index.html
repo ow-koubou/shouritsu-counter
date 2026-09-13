@@ -1,239 +1,267 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Darumadrop+One&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: rgba(15, 23, 42, 0.9);
+      --muted: rgba(255,255,255,0.72);
+      --win: #f1c40f;
+      --lose: #ff4d4d;
+      --shadow: rgba(0, 0, 0, 0.2);
+    }
 
-<link href="https://fonts.googleapis.com/css2?family=Darumadrop+One&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+    html, body {
+      background: transparent;
+    }
 
-<style>
+    * { box-sizing: border-box; }
 
-body{
-margin:0;
-background:transparent;
-font-family:'Darumadrop One';
-color:white;
-}
+    html, body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      background: transparent;
+      color: white;
+      font-family: 'Darumadrop One', 'Hiragino Mincho ProN', sans-serif;
+    }
 
-.container{
-width:420px;
-padding:20px;
-background:rgba(20,20,30,0.9);
-border-radius:16px;
-text-align:center;
-transition: background 0.5s;
-}
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 10px;
+      min-height: 100vh;
+    }
 
-.overlay{
-transition:opacity 0.8s;
-}
+    .display {
+      width: min(440px, 100%);
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 18px;
+      padding: 18px 16px 14px;
+      text-align: center;
+      box-shadow: 0 10px 30px var(--shadow);
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
 
-.hidden{
-opacity:0;
-pointer-events:none;
-}
+    .status {
+      font-size: 15px;
+      color: var(--muted);
+      min-height: 22px;
+      transition: opacity 0.2s ease;
+    }
 
-.score{
-display:flex;
-justify-content:space-around;
-font-size:64px;
-margin-top:10px;
-opacity:0;
-transition:opacity 0.8s;
-}
+    .status.connected {
+      color: #7ae7a1;
+    }
 
-.show{
-opacity:1;
-}
+    .status.hidden {
+      opacity: 0;
+      visibility: hidden;
+      height: 0;
+      min-height: 0;
+      margin: 0;
+      overflow: hidden;
+    }
 
-.win{color:#1ec773;}
-.lose{color:#e34a4a;}
+    .room {
+      font-size: 15px;
+      margin-top: 4px;
+      word-break: break-all;
+      color: rgba(255,255,255,0.86);
+      transition: opacity 0.2s ease;
+    }
 
-.rate{
-margin-top:10px;
-font-size:22px;
-opacity:0;
-transition:opacity 0.8s;
-}
+    .room.hidden {
+      opacity: 0;
+      visibility: hidden;
+      height: 0;
+      margin: 0;
+      overflow: hidden;
+    }
 
-.roomHistory{
-font-size:14px;
-margin-top:6px;
-opacity:.7;
-}
+    .score {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      gap: 18px;
+      font-size: 60px;
+      margin-top: 18px;
+      opacity: 1;
+    }
 
-</style>
+    .score-box {
+      flex: 1;
+      text-align: center;
+    }
 
+    .score-label {
+      font-size: 18px;
+      line-height: 1.1;
+      margin-bottom: 2px;
+    }
+
+    .win { color: var(--win); }
+    .lose { color: var(--lose); }
+
+    .rate {
+      margin-top: 10px;
+      font-size: 22px;
+    }
+  </style>
 </head>
-
 <body>
+  <div class="display">
+    <div id="status" class="status">接続待ち…</div>
+    <div id="room" class="room">ルームID: --</div>
 
-<div class="container">
+    <div class="score">
+      <div class="score-box win">
+        <div class="score-label">かち</div>
+        <div id="win">0</div>
+      </div>
 
-<div id="overlay" class="overlay">
+      <div class="score-box lose">
+        <div class="score-label">まけ</div>
+        <div id="lose">0</div>
+      </div>
+    </div>
 
-<div id="status">接続待ち…</div>
-<div id="room"></div>
-<div id="history" class="roomHistory"></div>
+    <div id="rate" class="rate">勝率 <span id="rateNum">0%</span></div>
+  </div>
 
-</div>
-
-<div id="score" class="score">
-
-<div class="win">
-<div id="winLabel">勝ち</div>
-<div id="win">0</div>
-</div>
-
-<div class="lose">
-<div id="loseLabel">負け</div>
-<div id="lose">0</div>
-</div>
-
-</div>
-
-<div id="rate" class="rate">
-勝率 <span id="rateNum">0%</span>
-</div>
-
-</div>
-
-<script>
-
-function randomRoom(){
-return Math.random().toString(36).substr(2,6)
-}
-
-// ルームID自動管理
-let room = localStorage.getItem('savedRoomId')
-if (!room) {
-  room = randomRoom()
-  localStorage.setItem('savedRoomId', room)
-} else {
-  document.getElementById('status').textContent = '前回のルームで再接続中…'
-}
-
-// 前回ルームID表示
-const lastRoom = localStorage.getItem('previousRoomId')
-if(lastRoom && lastRoom !== room) {
-  document.getElementById('history').textContent = '前回: ' + lastRoom
-}
-
-localStorage.setItem('previousRoomId', room)
-
-document.getElementById('room').textContent = 'ルームID: ' + room
-
-// ルームIDをコピーできるようにする
-document.getElementById('room').addEventListener('click', () => {
-  navigator.clipboard.writeText(room)
-  alert('ルームIDをコピーしました: ' + room)
-})
-
-let win = 0
-let lose = 0
-let fontKey = 'darumadrop'
-let backgroundColor = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-
-const fontFamilies = {
-  darumadrop: 'Darumadrop One, sans-serif',
-  mincho: 'Hiragino Mincho ProN, "ＭＳ 明朝", serif'
-}
-
-function updateLabels(){
-if(fontKey === 'mincho'){
- document.getElementById('winLabel').textContent = '勝'
- document.getElementById('loseLabel').textContent = '敗'
-} else {
- document.getElementById('winLabel').textContent = 'かち'
- document.getElementById('loseLabel').textContent = 'まけ'
-}
-}
-
-updateLabels()
-
-function update(){
-
-document.getElementById('win').textContent = win
-document.getElementById('lose').textContent = lose
-
-let total = win + lose
-let rate = 0
-
-if(total > 0){
-rate = Math.round(win/total*100)
-}
-
-document.getElementById('rateNum').textContent = rate + '%'
-
-}
-
-function showCounter(){
-
-const overlay = document.getElementById('overlay')
-
-overlay.style.opacity = '0'
-
-setTimeout(()=>{
-
-overlay.style.display = 'none'
-
-document.getElementById('score').classList.add('show')
-document.getElementById('rate').classList.add('show')
-
-}, 800)
-
-}
-
-const peer = new Peer()
-let peerConn = null
-
-peer.on('open', () => {
-  document.getElementById('status').textContent = '接続待機中'
-  
-  // 自動接続
-  peerConn = peer.connect(room)
-  
-  peerConn.on('open', () => {
-    document.getElementById('status').textContent = '接続完了'
-    setTimeout(showCounter, 1000)
-  })
-  
-  peerConn.on('data', data => {
-    win = data.win
-    lose = data.lose
-    if(data.font) {
-      const selectedFont = data.font
-      document.body.style.fontFamily = selectedFont
+  <script>
+    const roomStorageKey = 'savedRoomId';
+    const generateRoomId = () => Math.random().toString(36).slice(2, 12);
+    let roomId = localStorage.getItem(roomStorageKey) || '';
+    if (roomId.length !== 10) {
+      roomId = generateRoomId();
+      localStorage.setItem(roomStorageKey, roomId);
     }
-    if(data.fontKey) {
-      fontKey = data.fontKey
-    }
-    if(data.containerBackgroundColor) {
-      backgroundColor = data.containerBackgroundColor
-      document.querySelector('.container').style.background = backgroundColor
-    }
-    if(data.winColor) {
-      document.querySelector('.win').style.color = data.winColor
-    }
-    if(data.loseColor) {
-      document.querySelector('.lose').style.color = data.loseColor
-    }
-    updateLabels()
-    update()
-  })
-  
-  peerConn.on('error', err => {
-    console.error('Connection error:', err)
-    document.getElementById('status').textContent = 'エラー: ' + err.type
-  })
-})
+    const statusEl = document.getElementById('status');
+    const roomEl = document.getElementById('room');
+    const winEl = document.getElementById('win');
+    const loseEl = document.getElementById('lose');
+    const rateNumEl = document.getElementById('rateNum');
 
-peer.on('error', err => {
-  console.error('Peer error:', err)
-  document.getElementById('status').textContent = 'エラー: ' + err.type
-})
+    let win = 0;
+    let lose = 0;
+    let peer = null;
+    let conn = null;
 
-</script>
+    function setStatus(message, connected = false) {
+      statusEl.textContent = message;
+      statusEl.classList.toggle('connected', connected);
+      statusEl.classList.toggle('hidden', connected);
+    }
 
+    function hideRoomInfo() {
+      roomEl.classList.add('hidden');
+    }
+
+    function update() {
+      winEl.textContent = win;
+      loseEl.textContent = lose;
+      const total = win + lose;
+      const rate = total ? Math.round((win / total) * 100) : 0;
+      rateNumEl.textContent = rate + '%';
+    }
+
+    function applyDisplaySettings(data) {
+      if (!data) return;
+
+      if (data.winColor) {
+        document.documentElement.style.setProperty('--win', data.winColor);
+        winEl.style.color = data.winColor;
+      }
+
+      if (data.loseColor) {
+        document.documentElement.style.setProperty('--lose', data.loseColor);
+        loseEl.style.color = data.loseColor;
+      }
+
+      if (data.containerBackgroundColor) {
+        const panel = document.querySelector('.display');
+        if (panel) {
+          panel.style.background = data.containerBackgroundColor;
+        }
+      }
+
+      if (data.font) {
+        document.body.style.fontFamily = data.font;
+      }
+    }
+
+    function reconnect() {
+      if (!roomId) {
+        roomId = generateRoomId();
+        localStorage.setItem(roomStorageKey, roomId);
+      }
+
+      roomEl.textContent = 'ルームID: ' + roomId;
+      roomEl.classList.remove('hidden');
+      if (peer) {
+        peer.destroy();
+      }
+      peer = new Peer();
+
+      peer.on('open', () => {
+        if (conn) conn.close();
+        conn = peer.connect(roomId);
+        setStatus('接続中…');
+
+        conn.on('open', () => {
+          setStatus('接続完了', true);
+          roomEl.classList.add('hidden');
+        });
+
+        conn.on('data', (data) => {
+          const payload = data && data.type === 'state' ? data : (data && typeof data.win === 'number' ? data : null);
+          if (!payload) return;
+
+          if (typeof payload.win === 'number') win = payload.win;
+          if (typeof payload.lose === 'number') lose = payload.lose;
+          applyDisplaySettings(payload);
+          update();
+        });
+
+        conn.on('close', () => {
+          setStatus('切断されました');
+          roomEl.classList.remove('hidden');
+        });
+
+        conn.on('error', (err) => {
+          console.error('Display connection error:', err);
+          setStatus('接続エラー');
+        });
+      });
+
+      peer.on('error', (err) => {
+        console.error('Display peer error:', err);
+        setStatus('Peerエラー');
+      });
+    }
+
+    function showRoomInfo() {
+      roomEl.classList.remove('hidden');
+    }
+
+    window.addEventListener('storage', (event) => {
+      if (event.key === roomStorageKey) {
+        roomId = event.newValue || '';
+        showRoomInfo();
+        reconnect();
+      }
+    });
+
+    update();
+    showRoomInfo();
+    reconnect();
+  </script>
 </body>
 </html>
