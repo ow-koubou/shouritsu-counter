@@ -407,39 +407,276 @@ select option {
   }
 }
 
+/* v3: compact control surface */
+:root {
+  --v3-ink: #17212b;
+  --v3-muted: #72808d;
+  --v3-line: rgba(23, 33, 43, 0.12);
+  --v3-surface: rgba(255, 255, 255, 0.86);
+  --v3-win: #10a968;
+  --v3-lose: #e25555;
+}
+
+body {
+  position: relative;
+  overflow-x: hidden;
+  padding: 14px;
+  color: var(--v3-ink);
+  background: #e8eef0;
+  background-image: radial-gradient(circle at 12% 8%, rgba(16, 169, 104, 0.14), transparent 30%), radial-gradient(circle at 92% 92%, rgba(226, 85, 85, 0.12), transparent 28%);
+}
+
+body::before {
+  position: fixed;
+  inset: -20%;
+  z-index: -1;
+  background: linear-gradient(120deg, transparent 35%, rgba(255, 255, 255, 0.62) 50%, transparent 65%);
+  content: '';
+  animation: v3-sweep 12s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.main-container {
+  max-width: 860px;
+  gap: 12px;
+  animation: v3-enter 0.55s ease both;
+}
+
+.panel {
+  position: relative;
+  overflow: hidden;
+  padding: 18px;
+  color: var(--v3-ink);
+  background: var(--v3-surface);
+  border: 1px solid rgba(255, 255, 255, 0.82);
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(39, 57, 66, 0.1);
+  backdrop-filter: blur(14px);
+  animation: v3-rise 0.5s ease both;
+}
+
+.panel:nth-child(2) { animation-delay: 0.08s; }
+.panel:nth-child(3) { animation-delay: 0.16s; }
+
+.panel::after {
+  position: absolute;
+  top: 0;
+  right: 18px;
+  width: 44px;
+  height: 3px;
+  background: var(--v3-win);
+  border-radius: 0 0 4px 4px;
+  content: '';
+  opacity: 0.85;
+}
+
+.panel h2 {
+  margin-bottom: 12px;
+  color: var(--v3-ink);
+  font-size: 20px;
+  letter-spacing: 0;
+}
+
+.connection-panel { gap: 10px; }
+
+.status {
+  min-height: 18px;
+  color: var(--v3-muted);
+  font-size: 12px;
+}
+
+.status.connected {
+  color: var(--v3-win);
+  animation: v3-pulse 1.8s ease-in-out infinite;
+}
+
+.room-editor { gap: 7px; }
+
+.room-display,
+.history-list,
+.stat-box,
+.connection-panel > div[style] {
+  background: rgba(23, 33, 43, 0.055) !important;
+  border: 1px solid var(--v3-line);
+}
+
+.room-display {
+  padding: 9px 11px;
+  border-radius: 9px;
+  color: var(--v3-ink);
+  font-size: 13px;
+}
+
+.room-display:hover { transform: translateY(-1px); }
+
+.room-input,
+select {
+  min-height: 36px;
+  padding: 7px 10px;
+  color: var(--v3-ink);
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid var(--v3-line);
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.room-input::placeholder { color: #9aa5ad; }
+
+button,
+.room-apply-btn {
+  position: relative;
+  overflow: hidden;
+  min-height: 36px;
+  padding: 8px 12px;
+  border-radius: 9px;
+  font-size: 15px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+
+button::after,
+.room-apply-btn::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  content: '';
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+button:active::after,
+.room-apply-btn:active::after { animation: v3-ripple 0.45s ease-out; }
+
+button:hover,
+.room-apply-btn:hover {
+  filter: saturate(1.12);
+  transform: translateY(-2px);
+  box-shadow: 0 7px 16px rgba(39, 57, 66, 0.14);
+}
+
+.win-btn {
+  background: var(--v3-win);
+  box-shadow: 0 5px 12px rgba(16, 169, 104, 0.2);
+}
+
+.lose-btn {
+  background: var(--v3-lose);
+  box-shadow: 0 5px 12px rgba(226, 85, 85, 0.2);
+}
+
+.undo-btn,
+.reset-btn,
+.popup-btn {
+  color: var(--v3-ink);
+  background: rgba(23, 33, 43, 0.07);
+}
+
+.undo-btn,
+.reset-btn { padding: 7px 10px; font-size: 12px; }
+.popup-btn { margin-top: 2px; }
+.room-apply-btn { background: var(--v3-ink); }
+
+.connection-panel > div[style] {
+  margin-top: 4px !important;
+  padding: 10px !important;
+  border-radius: 10px !important;
+}
+
+.connection-panel > div[style] > div:first-child { font-size: 20px !important; }
+.connection-panel > div[style] > div:last-child { margin-top: 4px !important; font-size: 12px !important; }
+
+.settings { gap: 10px; }
+.settings > div > label,
+.statistics-panel label { color: var(--v3-muted); font-size: 12px !important; }
+.settings > div > input[type='color'] { height: 34px !important; border-radius: 8px !important; }
+.settings > div > div > input[type='color'] { width: 52px !important; height: 34px !important; border-radius: 8px !important; }
+.settings > div > div > div { padding: 7px !important; border: 1px solid var(--v3-line); background: rgba(23, 33, 43, 0.055) !important; border-radius: 8px !important; font-size: 12px !important; }
+
+.stats-grid { gap: 8px; margin-bottom: 12px; }
+.stat-box { padding: 10px 8px; border-radius: 10px; }
+.stat-label { margin-bottom: 3px; color: var(--v3-muted); font-size: 11px; }
+.stat-value { font-size: 25px; }
+.history-list { max-height: 180px; padding: 8px; border-radius: 10px; }
+.history-item { padding: 7px 5px; color: var(--v3-ink); font-size: 12px; }
+
+.update-dialog { background: rgba(23, 33, 43, 0.42); backdrop-filter: blur(5px); }
+.update-dialog-content { padding: 24px; color: var(--v3-ink); background: #f8fbfa; border: 1px solid rgba(255,255,255,0.8); border-radius: 14px; box-shadow: 0 20px 60px rgba(23, 33, 43, 0.2); animation: v3-modal 0.35s ease both; }
+.update-dialog-header { margin-bottom: 14px; color: var(--v3-ink); font-size: 22px; }
+.update-dialog-content h3 { margin-top: 10px; padding-bottom: 5px; color: var(--v3-ink); border-bottom-color: var(--v3-line); font-size: 14px; }
+.update-dialog-content li { padding: 3px 0 3px 18px; color: var(--v3-muted); font-size: 12px; }
+.update-dialog-buttons { margin-top: 18px; }
+.update-dialog-btn.primary { background: var(--v3-ink); }
+.update-dialog-btn.secondary { color: var(--v3-ink); background: rgba(23, 33, 43, 0.09); }
+
+@keyframes v3-enter { from { opacity: 0; transform: scale(0.985); } to { opacity: 1; transform: scale(1); } }
+@keyframes v3-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes v3-modal { from { opacity: 0; transform: translateY(12px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes v3-pulse { 50% { opacity: 0.62; } }
+@keyframes v3-ripple { from { opacity: 0.75; transform: translate(-50%, -50%) scale(1); } to { opacity: 0; transform: translate(-50%, -50%) scale(18); } }
+@keyframes v3-sweep { 0%, 100% { transform: translateX(-8%); opacity: 0; } 45% { opacity: 0.5; } 70% { transform: translateX(8%); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+}
+
 </style>
 
 </head>
 
 <body>
 
+<div class="update-dialog" id="migrationDialog">
+  <div class="update-dialog-content">
+    <div class="update-dialog-header">v2データの移行</div>
+
+    <h3>保存データが見つかりました</h3>
+    <ul>
+      <li>設定と勝敗履歴をv3へ引き継ぎます</li>
+      <li>ルームIDは10文字仕様のため引き継げません</li>
+      <li>v3用に新しい10文字のルームIDを発行します</li>
+      <li>移行しない場合も、v2のデータは削除されません</li>
+    </ul>
+
+    <div class="update-dialog-buttons">
+      <button class="update-dialog-btn secondary" onclick="closeMigrationDialog(false)">不同意</button>
+      <button class="update-dialog-btn primary" onclick="closeMigrationDialog(true)">同意して移行</button>
+    </div>
+  </div>
+</div>
+
 <div class="update-dialog" id="updateDialog">
   <div class="update-dialog-content">
-    <div class="update-dialog-header">🎉 v2にアップデート！</div>
+    <div class="update-dialog-header">v3にアップデート</div>
     
-    <h3>🎨 デザイン大幅リニューアル</h3>
+    <h3>デザインをコンパクトに刷新</h3>
     <ul>
-      <li>モダンなグラスモーフィズムUIに刷新</li>
-      <li>直感的な3カラムレイアウト</li>
+      <li>操作パネルを省スペース化</li>
+      <li>操作に反応するアニメーションを追加</li>
+      <li>見やすさを保ちながら情報を整理</li>
     </ul>
 
-    <h3>🌈 新機能</h3>
+    <h3>操作性の改善</h3>
     <ul>
-      <li>カウンター背景色を6色から選択可能</li>
-      <li>ルームIDが自動保存され、いつでも再接続可能</li>
-      <li>セッション単位の勝敗履歴を記録</li>
-      <li>総勝敗数と勝率を自動集計</li>
+      <li>勝ち・負け・取り消しをすばやく操作</li>
+      <li>ボタン操作時の視覚フィードバックを強化</li>
+      <li>ルームIDのコピーと変更に対応</li>
     </ul>
 
-    <h3>💾 データ管理</h3>
+    <h3>データ管理</h3>
     <ul>
-      <li>リセット時に自動でセッション履歴に保存</li>
-      <li>最大50セッションまで履歴保持</li>
+      <li>リセット時とページ終了時にセッションを保存</li>
+      <li>ページ終了時の履歴二重保存を修正</li>
+      <li>セッション履歴を無制限に永久保存</li>
+      <li>履歴・総勝敗数・勝率を一覧表示</li>
     </ul>
 
-    <h3>⚠️ 注意事項</h3>
+    <h3>設定・接続</h3>
     <ul>
-      <li>先に操作ページを起動してください</li>
+      <li>フォント・文字色・背景色をカスタマイズ可能</li>
+      <li>表示ページとの接続にはPeerJSを使用</li>
     </ul>
 
     <div class="update-dialog-buttons">
@@ -458,7 +695,7 @@ select option {
     <div class="room-editor">
       <div class="room-display" id="roomDisplay" onclick="copyRoom()" title="クリックでコピー">-</div>
       <div class="room-editor-row">
-        <input type="text" id="roomInput" class="room-input" placeholder="新しいルームIDを入力" />
+        <input type="text" id="roomInput" class="room-input" placeholder="10文字のルームIDを入力" maxlength="10" />
         <button class="room-apply-btn" onclick="changeRoom()">変更</button>
       </div>
     </div>
@@ -537,7 +774,7 @@ select option {
     </div>
 
     <div>
-      <label style="font-size: 14px; display: block; margin-bottom: 8px;">直近の履歴</label>
+      <label style="font-size: 14px; display: block; margin-bottom: 8px;">履歴</label>
       <div class="history-list" id="historyList">
         <div style="text-align: center; color: #888;">履歴はまだありません</div>
       </div>
@@ -557,8 +794,15 @@ let loseColor = '#e34a4a'
 let containerBackgroundColor = 'rgba(26,20,30,0.9)'
 let containerBackgroundColorKey = '#1a141e'
 let roomId = null
+let legacyRoomId = null
 let conn = null
 let peer = null
+let stream = null
+let detectionTimer = null
+let autoDetectEnabled = false
+let lastDetection = null
+let lastDetectionAt = 0
+let detectionSampleBuffer = []
 
 const fontFamilies = {
   darumadrop: 'Darumadrop One, sans-serif',
@@ -568,9 +812,13 @@ const fontFamilies = {
 // ルームID管理
 function initializeRoom() {
   let saved = localStorage.getItem('savedRoomId')
+
+  if (saved && saved.length !== 10) {
+    legacyRoomId = saved
+  }
   
-  if (!saved) {
-    saved = Math.random().toString(36).substr(2, 6)
+  if (!saved || saved.length !== 10) {
+    saved = Math.random().toString(36).slice(2, 12)
     localStorage.setItem('savedRoomId', saved)
   }
   
@@ -605,6 +853,11 @@ function initializeRoom() {
   
   peer.on('error', err => {
     console.error('Peer error:', err)
+    if (err.type === 'unavailable-id') {
+      updateStatus('このルームIDは使用中です', false)
+      alert('このルームIDはすでに使用されています。別のIDを入力してください。')
+      return
+    }
     updateStatus('エラー: ' + err.type, false)
   })
 }
@@ -616,11 +869,31 @@ function changeRoom() {
     alert('ルームIDを入力してください')
     return
   }
+
+  if (nextRoomId.length !== 10) {
+    alert('ルームIDは10文字で入力してください')
+    return
+  }
+
+  if (nextRoomId === roomId) {
+    updateStatus('このルームIDを使用中です', true)
+    return
+  }
   
   roomId = nextRoomId
   localStorage.setItem('savedRoomId', roomId)
-  initializeRoom()
-  alert('ルームIDを変更しました: ' + roomId)
+
+  const previousPeer = peer
+  peer = null
+  if (previousPeer) {
+    previousPeer.destroy()
+  }
+
+  updateStatus('ルーム変更中...', false)
+  setTimeout(() => {
+    initializeRoom()
+    alert('ルームIDを変更しました: ' + roomId)
+  }, 400)
 }
 
 function updateStatus(text, connected = false) {
@@ -636,7 +909,17 @@ function copyRoom() {
 
 function send() {
   if (conn) {
-    conn.send({ win, lose, font, fontKey, containerBackgroundColor, containerBackgroundColorKey, winColor, loseColor })
+    conn.send({
+      type: 'state',
+      win,
+      lose,
+      font,
+      fontKey,
+      containerBackgroundColor,
+      containerBackgroundColorKey,
+      winColor,
+      loseColor
+    })
   } else {
     console.warn('接続がまだ確立されていません')
   }
@@ -690,6 +973,22 @@ function reset() {
   updateStatistics()
 }
 
+function formatSummaryStamp(dateValue) {
+  const date = new Date(dateValue)
+  return `${date.getMonth() + 1}月${date.getDate()}日${String(date.getHours()).padStart(2, '0')}時${String(date.getMinutes()).padStart(2, '0')}分`
+}
+
+function createSummaryEntry(winValue, loseValue, dateValue = Date.now()) {
+  const total = winValue + loseValue
+  const rate = total > 0 ? Math.round((winValue / total) * 100) : 0
+  return {
+    timestamp: formatSummaryStamp(dateValue),
+    win: winValue,
+    lose: loseValue,
+    rate
+  }
+}
+
 function setFont(key) {
   const selectedFont = fontFamilies[key] || fontFamilies.darumadrop
   fontKey = key
@@ -739,23 +1038,13 @@ function getHistory() {
 
 function saveSession() {
   if (win === 0 && lose === 0) return // スコアが0の場合は保存しない
-  
+
   const history = getHistory()
-  const timestamp = new Date().toLocaleString('ja-JP')
-  history.push({ 
-    timestamp, 
-    win, 
-    lose,
-    rate: win + lose > 0 ? Math.round(win / (win + lose) * 100) : 0
-  })
-  
-  // 最新50セッションまで保持
-  if (history.length > 50) {
-    history.shift()
-  }
-  
+  history.push(createSummaryEntry(win, lose, Date.now()))
+
   localStorage.setItem('sessionHistory', JSON.stringify(history))
   updateHistoryDisplay()
+  updateStatistics()
 }
 
 function updateHistoryDisplay() {
@@ -768,7 +1057,7 @@ function updateHistoryDisplay() {
   }
   
   // 新しい順に表示
-  historyList.innerHTML = history.reverse().slice(0, 20).map(item => {
+  historyList.innerHTML = history.reverse().map(item => {
     return `
       <div class="history-item">
         <span style="font-size: 12px; color: #aaa;">${item.timestamp}</span>
@@ -848,8 +1137,52 @@ if (savedBgColor) {
 }
 
 // アップデートダイアログ表示制御
+function hasV2Data() {
+  const hasLegacyRoomId = Boolean(legacyRoomId)
+  const hasV2UpdateMarker = localStorage.getItem('updateDialogShownV2') === 'true'
+  return hasLegacyRoomId || hasV2UpdateMarker
+}
+
+function showMigrationDialogIfNeeded() {
+  const migrationHandled = localStorage.getItem('migrationDialogHandledV3')
+  if (!migrationHandled && hasV2Data()) {
+    document.getElementById('migrationDialog').classList.add('show')
+    return true
+  }
+  return false
+}
+
+function migrateV2Data() {
+  const transferableKeys = [
+    'selectedFont',
+    'winColor',
+    'loseColor',
+    'containerBackgroundColor',
+    'containerBackgroundColorKey',
+    'sessionHistory'
+  ]
+
+  transferableKeys.forEach(key => {
+    const value = localStorage.getItem(key)
+    if (value !== null) {
+      localStorage.setItem(key, value)
+    }
+  })
+
+  localStorage.setItem('v3DataMigrationCompleted', 'true')
+}
+
+function closeMigrationDialog(accepted) {
+  document.getElementById('migrationDialog').classList.remove('show')
+  if (accepted) {
+    migrateV2Data()
+  }
+  localStorage.setItem('migrationDialogHandledV3', accepted ? 'accepted' : 'declined')
+  showUpdateDialogIfNeeded()
+}
+
 function showUpdateDialogIfNeeded() {
-  const updateShown = localStorage.getItem('updateDialogShownV2')
+  const updateShown = localStorage.getItem('updateDialogShownV3')
   if (!updateShown) {
     document.getElementById('updateDialog').classList.add('show')
   }
@@ -857,7 +1190,7 @@ function showUpdateDialogIfNeeded() {
 
 function closeUpdateDialog() {
   document.getElementById('updateDialog').classList.remove('show')
-  localStorage.setItem('updateDialogShownV2', 'true')
+  localStorage.setItem('updateDialogShownV3', 'true')
 }
 
 document.getElementById('roomInput').addEventListener('keydown', event => {
@@ -870,12 +1203,9 @@ initializeRoom()
 updateCurrentDisplay()
 updateStatistics()
 updateHistoryDisplay()
-showUpdateDialogIfNeeded()
-
-// ページを離れるときに現在のセッションを保存
-window.addEventListener('beforeunload', () => {
-  saveSession()
-})
+if (!showMigrationDialogIfNeeded()) {
+  showUpdateDialogIfNeeded()
+}
 
 function popup() {
   window.open(
@@ -884,6 +1214,198 @@ function popup() {
     'width=500,height=400'
   )
 }
+
+function rgbToHue(r, g, b) {
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+  const delta = max - min
+  if (delta === 0) return 0
+  let hue = 0
+  if (max === r) hue = ((g - b) / delta) % 6
+  else if (max === g) hue = (b - r) / delta + 2
+  else hue = (r - g) / delta + 4
+  return (hue * 60 + 360) % 360
+}
+
+function isDefectColor(r, g, b) {
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+  const delta = max - min
+  const saturation = max === 0 ? 0 : delta / max
+  const value = max / 255
+  const hue = rgbToHue(r, g, b)
+  const redHue = hue <= 18 || hue >= 336
+  const strongRed = r > 150 && g < 120 && b < 120
+  return redHue && saturation > 0.55 && value > 0.55 && strongRed
+}
+
+function isVictoryColor(r, g, b) {
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+  const delta = max - min
+  const saturation = max === 0 ? 0 : delta / max
+  const value = max / 255
+  const hue = rgbToHue(r, g, b)
+  const yellowHue = hue >= 25 && hue <= 80
+  const similarity = Math.abs(r - g) < 70 && r > 140 && g > 110 && b < 180
+  return yellowHue && saturation > 0.35 && value > 0.55 && similarity
+}
+
+function analyzeFrame() {
+  if (!screenVideo || !detectCanvas || screenVideo.readyState < 2 || screenVideo.videoWidth < 40) return null
+
+  const width = 240
+  const height = 135
+  detectCanvas.width = width
+  detectCanvas.height = height
+  detectCtx.drawImage(screenVideo, 0, 0, width, height)
+  const imageData = detectCtx.getImageData(0, 0, width, height)
+  const pixels = imageData.data
+
+  const cropX = Math.floor(width * 0.18)
+  const cropY = Math.floor(height * 0.18)
+  const cropW = Math.floor(width * 0.64)
+  const cropH = Math.floor(height * 0.52)
+  const totalSamplePixels = cropW * cropH
+
+  let redPixels = 0
+  let yellowPixels = 0
+
+  for (let y = cropY; y < cropY + cropH; y++) {
+    for (let x = cropX; x < cropX + cropW; x++) {
+      const idx = (y * width + x) * 4
+      const r = pixels[idx]
+      const g = pixels[idx + 1]
+      const b = pixels[idx + 2]
+
+      if (isDefectColor(r, g, b)) redPixels += 1
+      if (isVictoryColor(r, g, b)) yellowPixels += 1
+    }
+  }
+
+  const redRatio = redPixels / totalSamplePixels
+  const yellowRatio = yellowPixels / totalSamplePixels
+  const dominanceGap = Math.abs(redPixels - yellowPixels)
+
+  if (redRatio > 0.05 && redPixels > 900 && dominanceGap > 500 && redPixels > yellowPixels * 2.0) {
+    return { type: 'defect', score: redPixels }
+  }
+  if (yellowRatio > 0.05 && yellowPixels > 900 && dominanceGap > 500 && yellowPixels > redPixels * 2.0) {
+    return { type: 'victory', score: yellowPixels }
+  }
+  return null
+}
+
+function stopAutoDetect() {
+  if (detectionTimer) {
+    clearInterval(detectionTimer)
+    detectionTimer = null
+  }
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop())
+    stream = null
+  }
+  if (screenVideo) screenVideo.srcObject = null
+  const detectionEl = document.getElementById('detectionStatus')
+  if (detectionEl) detectionEl.textContent = '画面共有で defect / victory を検知します'
+}
+
+async function startAutoDetect() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+    const detectionEl = document.getElementById('detectionStatus')
+    if (detectionEl) detectionEl.textContent = 'このブラウザでは画面共有が使えません'
+    autoDetectEnabled = false
+    const toggle = document.getElementById('autoDetectToggle')
+    if (toggle) toggle.checked = false
+    return
+  }
+
+  try {
+    autoDetectEnabled = true
+    stream = await navigator.mediaDevices.getDisplayMedia({
+      video: { frameRate: { ideal: 10, max: 12 }, width: { ideal: 1280 }, height: { ideal: 720 } },
+      audio: false
+    })
+
+    const detectionEl = document.getElementById('detectionStatus')
+    if (screenVideo) {
+      screenVideo.srcObject = stream
+      await screenVideo.play()
+    }
+    if (detectionEl) detectionEl.textContent = '検知中…'
+
+    detectionTimer = setInterval(() => {
+      if (!autoDetectEnabled) return
+      const result = analyzeFrame()
+      if (!result) {
+        detectionSampleBuffer = []
+        return
+      }
+
+      detectionSampleBuffer.push(result.type)
+      if (detectionSampleBuffer.length > 3) detectionSampleBuffer.shift()
+
+      const stable = detectionSampleBuffer.length >= 3 && detectionSampleBuffer.every(type => type === result.type)
+      if (!stable) return
+
+      const now = Date.now()
+      const same = lastDetection === result.type
+      if (same && now - lastDetectionAt < 4500) return
+
+      lastDetection = result.type
+      lastDetectionAt = now
+      detectionSampleBuffer = []
+      if (detectionEl) detectionEl.textContent = result.type === 'defect' ? 'defect を検知しました' : 'victory を検知しました'
+      if (result.type === 'defect') addLose()
+      else addWin()
+    }, 700)
+
+    stream.getVideoTracks()[0].addEventListener('ended', () => {
+      autoDetectEnabled = false
+      stopAutoDetect()
+    })
+  } catch (error) {
+    console.error(error)
+    autoDetectEnabled = false
+    const detectionEl = document.getElementById('detectionStatus')
+    if (detectionEl) detectionEl.textContent = '画面共有の許可が必要です'
+    stopAutoDetect()
+  }
+}
+
+// const autoDetectToggle = document.getElementById('autoDetectToggle')
+// if (autoDetectToggle) {
+//   autoDetectToggle.addEventListener('change', () => {
+//     if (autoDetectToggle.checked) startAutoDetect()
+//     else {
+//       autoDetectEnabled = false
+//       stopAutoDetect()
+//     }
+//   })
+// }
+
+// screenVideo = document.createElement('video')
+// screenVideo.style.display = 'none'
+// screenVideo.autoplay = true
+// screenVideo.muted = true
+// screenVideo.playsInline = true
+//
+// detectCanvas = document.createElement('canvas')
+// detectCanvas.width = 240
+// detectCanvas.height = 135
+// detectCanvas.style.display = 'none'
+// detectCtx = detectCanvas.getContext('2d', { willReadFrequently: true })
+//
+// document.body.appendChild(screenVideo)
+// document.body.appendChild(detectCanvas)
+
+window.addEventListener('beforeunload', () => {
+  if (win + lose > 0) {
+    saveSession()
+    win = 0
+    lose = 0
+  }
+})
 
 </script>
 
